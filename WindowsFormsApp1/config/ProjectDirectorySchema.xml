@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<root>
+  <dir name="Project Manage">
+    <dir name="Contracts"/>
+    <dir name="Payroll">
+      <dir name="Subdirectory"/>
+    </dir>  
+    <dir name="Invoice"/>
+  </dir>
+  <dir name="Engineering">
+    <dir name="Issued"/>
+    <dir name="Note"/>
+    <dir name="Info"/>
+  </dir>
+  <dir name="Construction">
+    <dir name="Testing"/>
+    <dir name="RFI"/>
+  </dir>
+</root>
