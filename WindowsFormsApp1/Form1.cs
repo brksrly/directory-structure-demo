@@ -33,34 +33,118 @@ namespace WindowsFormsApp1
             if (openFolderDialogBrowser.ShowDialog() == DialogResult.OK)
             {
                 pathTextBox1.Text = openFolderDialogBrowser.SelectedPath;
+                ProjectNode root = generateProjectNodeGraph(openFolderDialogBrowser.SelectedPath);
+
                 populateTreeList(openFolderDialogBrowser.SelectedPath);
+
             }
         }
 
-        private void populateTreeList(string path)
+        private ProjectNode generateProjectNodeGraph(string path)
         {
-            mockTreeView1.Nodes.Clear();
-
+            ProjectNode rootProjectNode = new ProjectNode(null, path);
             DirectoryInfo rootDirectoryInfo = new DirectoryInfo(path);
+            rootProjectNode.SetType(rootDirectoryInfo);
+
             XmlElement rootSchemaInfo = schemaConfig.DocumentElement;
 
-            // Valid exists/not exists loop
-            foreach (XmlNode currSchemaChild in rootSchemaInfo.ChildNodes)
+            ProjectNode lastSibling = null;
+
+            foreach (XmlNode schemaNode in rootSchemaInfo.ChildNodes)
             {
-                String schemaPath = currSchemaChild.Attributes["name"].Value;
-                DirectoryInfo currDirctoryChild = new DirectoryInfo(rootDirectoryInfo.FullName + Path.DirectorySeparatorChar + schemaPath);
-                mockTreeView1.Nodes.Add(CreateDirectoryNode(currDirctoryChild, currSchemaChild));
+                ProjectNode projectNode = new ProjectNode(rootProjectNode, schemaNode.Attributes["name"].Value);
+                DirectoryInfo dir = new DirectoryInfo(rootDirectoryInfo.FullName + Path.DirectorySeparatorChar + projectNode.Name);
+                projectNode.SetType(dir);
+
+                lastSibling = SetGraphRelations(rootProjectNode, lastSibling, projectNode);
+                AddDescendantProjectNodes(projectNode, schemaNode, dir);
             }
 
-            // Invalid Loop
             foreach (var directory in rootDirectoryInfo.GetDirectories())
             {
                 if (!isPartOfSchema(directory, rootSchemaInfo))
-                    mockTreeView1.Nodes.Add(CreateDirectoryNode(directory, null));
+                {
+                    ProjectNode projectNode = new ProjectNode(rootProjectNode, directory.Name);
+                    projectNode.SetType(ProjectNodeType.Unexpected);
+                    AddDescendantProjectNodes(projectNode, null, directory);
+
+                    lastSibling = SetGraphRelations(rootProjectNode, lastSibling, projectNode);
+                }
             }
 
+            foreach (var file in rootDirectoryInfo.GetFiles())
+            {
+                ProjectNode projectNode = new ProjectNode(rootProjectNode, file.Name);
+                projectNode.SetType(ProjectNodeType.File);
+
+                lastSibling = lastSibling = SetGraphRelations(rootProjectNode, lastSibling, projectNode);
+
+            }
+
+            return rootProjectNode;
         }
 
+        private void AddDescendantProjectNodes(ProjectNode parent, XmlNode parentSchemaNode, DirectoryInfo parentDirectory)
+        {
+            ProjectNode lastSibling = null;
+
+            if (parentSchemaNode != null)
+            {
+                foreach (XmlNode schemaNode in parentSchemaNode.ChildNodes)
+                {
+                    ProjectNode projectNode = new ProjectNode(parent, schemaNode.Attributes["name"].Value);
+                    DirectoryInfo dir = new DirectoryInfo(parentDirectory.FullName + Path.DirectorySeparatorChar + projectNode.Name);
+                    projectNode.SetType(dir);
+
+                    lastSibling = SetGraphRelations(parent, lastSibling, projectNode);
+                    AddDescendantProjectNodes(projectNode, schemaNode, dir);
+                }
+            }
+
+            if (parentDirectory.Exists)
+            {
+                foreach (var directory in parentDirectory.GetDirectories())
+                {
+                    if (!isPartOfSchema(directory, parentSchemaNode))
+                    {
+                        ProjectNode projectNode = new ProjectNode(parent, directory.Name);
+                        projectNode.SetType(ProjectNodeType.Unexpected);
+                        AddDescendantProjectNodes(projectNode, null, directory);
+
+                        lastSibling = SetGraphRelations(parent, lastSibling, projectNode);
+                    }
+                }
+
+                foreach (var file in parentDirectory.GetFiles())
+                {
+                    ProjectNode projectNode = new ProjectNode(parent, file.Name);
+                    projectNode.SetType(ProjectNodeType.File);
+
+                    lastSibling = lastSibling = SetGraphRelations(parent, lastSibling, projectNode);
+
+                }
+            }
+        }
+
+        private static ProjectNode SetGraphRelations(ProjectNode parent, ProjectNode lastSibling, ProjectNode projectNode)
+        {
+            if (parent.NextDescendant == null)
+                parent.NextDescendant = projectNode;
+
+            if (lastSibling != null)
+                lastSibling.NextSibling = projectNode;
+            return projectNode;
+        }
+
+        private bool isPartOfSchema(DirectoryInfo directory, XmlNode schemaInfo)
+        {
+            if (schemaInfo == null)
+                return false;
+            foreach (XmlNode schemaChild in schemaInfo.ChildNodes)
+                if (schemaChild.Attributes["name"].Value == directory.Name)
+                    return true;
+            return false;
+        }
         private TreeNode CreateDirectoryNode(DirectoryInfo directoryInfo, XmlNode schemaInfo)
         {
             TreeNode directoryNode = getCurrentTreeNode(directoryInfo, schemaInfo);
@@ -88,16 +172,32 @@ namespace WindowsFormsApp1
             return directoryNode;
 
         }
-
-        private bool isPartOfSchema(DirectoryInfo directory, XmlNode schemaInfo)
+        
+        private void populateTreeList(string path)
         {
-            if (schemaInfo == null)
-                return false;
-            foreach (XmlNode schemaChild in schemaInfo.ChildNodes)
-                if (schemaChild.Attributes["name"].Value == directory.Name)
-                    return true;
-            return false;
+            mockTreeView1.Nodes.Clear();
+
+            DirectoryInfo rootDirectoryInfo = new DirectoryInfo(path);
+            XmlElement rootSchemaInfo = schemaConfig.DocumentElement;
+
+            // Valid exists/not exists loop
+            foreach (XmlNode currSchemaChild in rootSchemaInfo.ChildNodes)
+            {
+                String schemaPath = currSchemaChild.Attributes["name"].Value;
+                DirectoryInfo currDirctoryChild = new DirectoryInfo(rootDirectoryInfo.FullName + Path.DirectorySeparatorChar + schemaPath);
+                mockTreeView1.Nodes.Add(CreateDirectoryNode(currDirctoryChild, currSchemaChild));
+            }
+
+            // Invalid Loop
+            foreach (var directory in rootDirectoryInfo.GetDirectories())
+            {
+                if (!isPartOfSchema(directory, rootSchemaInfo))
+                    mockTreeView1.Nodes.Add(CreateDirectoryNode(directory, null));
+            }
+
         }
+
+
 
         private TreeNode getCurrentTreeNode(DirectoryInfo directoryInfo, XmlNode schemaInfo)
         {
