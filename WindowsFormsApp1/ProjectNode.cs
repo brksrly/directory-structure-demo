@@ -47,6 +47,5 @@ namespace WindowsFormsApp1
         {
             Type = type;
         }
-
     }
 }
