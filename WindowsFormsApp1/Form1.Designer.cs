@@ -54,7 +54,7 @@
             this.toolStripMenuItemDelete = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemCreate = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemRename = new System.Windows.Forms.ToolStripMenuItem();
-            this.mockTreeView1 = new System.Windows.Forms.TreeView();
+            this.treeView = new System.Windows.Forms.TreeView();
             this.openButton = new System.Windows.Forms.Button();
             this.pathTextBox1 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -69,12 +69,12 @@
             this.contextMenuStripFile.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem1});
             this.contextMenuStripFile.Name = "ContractMenuStrip2";
-            this.contextMenuStripFile.Size = new System.Drawing.Size(150, 40);
+            this.contextMenuStripFile.Size = new System.Drawing.Size(104, 26);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(149, 36);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(103, 22);
             this.toolStripMenuItem1.Text = "Open";
             // 
             // contextMenuStripDirectory
@@ -86,37 +86,41 @@
             this.toolStripMenuItemCreate,
             this.toolStripMenuItemRename});
             this.contextMenuStripDirectory.Name = "contextMenuStrip1";
-            this.contextMenuStripDirectory.Size = new System.Drawing.Size(177, 148);
+            this.contextMenuStripDirectory.Size = new System.Drawing.Size(181, 114);
+            this.contextMenuStripDirectory.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripDirectory_Opening);
             // 
             // toolStripMenuItemOpen
             // 
             this.toolStripMenuItemOpen.Name = "toolStripMenuItemOpen";
-            this.toolStripMenuItemOpen.Size = new System.Drawing.Size(176, 36);
+            this.toolStripMenuItemOpen.Size = new System.Drawing.Size(180, 22);
             this.toolStripMenuItemOpen.Text = "Open";
+            this.toolStripMenuItemOpen.Click += new System.EventHandler(this.toolStripMenuItemOpen_Click);
             // 
             // toolStripMenuItemDelete
             // 
             this.toolStripMenuItemDelete.Name = "toolStripMenuItemDelete";
-            this.toolStripMenuItemDelete.Size = new System.Drawing.Size(176, 36);
+            this.toolStripMenuItemDelete.Size = new System.Drawing.Size(180, 22);
             this.toolStripMenuItemDelete.Text = "Delete";
             // 
             // toolStripMenuItemCreate
             // 
             this.toolStripMenuItemCreate.Enabled = false;
             this.toolStripMenuItemCreate.Name = "toolStripMenuItemCreate";
-            this.toolStripMenuItemCreate.Size = new System.Drawing.Size(176, 36);
+            this.toolStripMenuItemCreate.Size = new System.Drawing.Size(180, 22);
             this.toolStripMenuItemCreate.Text = "Create";
             // 
             // toolStripMenuItemRename
             // 
             this.toolStripMenuItemRename.Name = "toolStripMenuItemRename";
-            this.toolStripMenuItemRename.Size = new System.Drawing.Size(176, 36);
+            this.toolStripMenuItemRename.Size = new System.Drawing.Size(180, 22);
             this.toolStripMenuItemRename.Text = "Rename";
+            this.toolStripMenuItemRename.Click += new System.EventHandler(this.toolStripMenuItemRename_Click);
             // 
-            // mockTreeView1
+            // treeView
             // 
-            this.mockTreeView1.Location = new System.Drawing.Point(-1, 88);
-            this.mockTreeView1.Name = "mockTreeView1";
+            this.treeView.Location = new System.Drawing.Point(0, 46);
+            this.treeView.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.treeView.Name = "treeView";
             treeNode1.ContextMenuStrip = this.contextMenuStripFile;
             treeNode1.Name = "Node8";
             treeNode1.Text = "ContractDraft.pdf";
@@ -143,19 +147,20 @@
             treeNode11.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(34)))), ((int)(((byte)(34)))));
             treeNode11.Name = "Dick Pics";
             treeNode11.Text = "Dick Pics";
-            this.mockTreeView1.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
+            this.treeView.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode6,
             treeNode9,
             treeNode10,
             treeNode11});
-            this.mockTreeView1.Size = new System.Drawing.Size(1163, 787);
-            this.mockTreeView1.TabIndex = 0;
+            this.treeView.Size = new System.Drawing.Size(584, 411);
+            this.treeView.TabIndex = 0;
             // 
             // openButton
             // 
-            this.openButton.Location = new System.Drawing.Point(1021, 20);
+            this.openButton.Location = new System.Drawing.Point(510, 10);
+            this.openButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.openButton.Name = "openButton";
-            this.openButton.Size = new System.Drawing.Size(141, 39);
+            this.openButton.Size = new System.Drawing.Size(70, 20);
             this.openButton.TabIndex = 1;
             this.openButton.Text = "Open";
             this.openButton.UseVisualStyleBackColor = true;
@@ -164,29 +169,32 @@
             // pathTextBox1
             // 
             this.pathTextBox1.Cursor = System.Windows.Forms.Cursors.SizeAll;
-            this.pathTextBox1.Location = new System.Drawing.Point(158, 20);
+            this.pathTextBox1.Location = new System.Drawing.Point(79, 10);
+            this.pathTextBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.pathTextBox1.Name = "pathTextBox1";
-            this.pathTextBox1.Size = new System.Drawing.Size(848, 31);
+            this.pathTextBox1.Size = new System.Drawing.Size(426, 20);
             this.pathTextBox1.TabIndex = 4;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 26);
+            this.label1.Location = new System.Drawing.Point(6, 14);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(136, 25);
+            this.label1.Size = new System.Drawing.Size(69, 13);
             this.label1.TabIndex = 5;
             this.label1.Text = "Project Root:";
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1363, 875);
+            this.ClientSize = new System.Drawing.Size(682, 455);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.pathTextBox1);
             this.Controls.Add(this.openButton);
-            this.Controls.Add(this.mockTreeView1);
+            this.Controls.Add(this.treeView);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "Form1";
             this.Text = "Project Structure Navigator";
             this.contextMenuStripFile.ResumeLayout(false);
@@ -197,7 +205,7 @@
         }
 
         #endregion
-        private System.Windows.Forms.TreeView mockTreeView1;
+        private System.Windows.Forms.TreeView treeView;
         private System.Windows.Forms.Button openButton;
         private System.Windows.Forms.ContextMenuStrip contextMenuStripDirectory;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemOpen;
