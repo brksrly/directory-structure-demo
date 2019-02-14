@@ -14,14 +14,16 @@ namespace WindowsFormsApp1
 
         private readonly XmlDocument _SchemaDocument;
         private readonly DirectoryInfo _Dir;
-
-        private ProjectNode _R;
         private XmlElement _Sch;
+
+        public ProjectNode _R { get; private set; }
+        public Dictionary<int, List<ProjectNode>> _M { get; private set; }
 
         public ProjectNodeGraphCalculator(string baseDirectoryPath)
         {
             _SchemaDocument = LoadSchemaDocument(CONFIG_FILE_PATH);
             _Dir = new DirectoryInfo(baseDirectoryPath);
+            generateProjectNodeGraph();
         }
 
         private XmlDocument LoadSchemaDocument(string configFilePath)
@@ -31,9 +33,25 @@ namespace WindowsFormsApp1
             return schemaConfig;
         }
 
+        private void AddToLevelMap(ProjectNode node)
+        {         
+            if (_M.TryGetValue(node.Lvl, out List<ProjectNode> lvllist))
+            {
+                if (node.Lvl == 0)
+                    throw new InvalidProgramException("Should not be two level 0 nodes");
+                lvllist.Add(node);
+            }
+            else
+                _M.Add(node.Lvl, new List<ProjectNode>() { node });
+        }
+
         public void generateProjectNodeGraph()
         {
-            _R = new ProjectNode(null, _Dir.FullName, ProjectNodeType.Exists);         
+            _M = new Dictionary<int, List<ProjectNode>>();
+            _R = new ProjectNode(null, _Dir.FullName, ProjectNodeType.Exists);
+
+            AddToLevelMap(_R);
+
             _Sch = _SchemaDocument.DocumentElement;
 
             ProjectNode last = null;   
@@ -43,6 +61,8 @@ namespace WindowsFormsApp1
                 string name = schemaNode.Attributes["name"].Value;
                 DirectoryInfo dir = new DirectoryInfo(_R.Name + Path.DirectorySeparatorChar + name);
                 ProjectNode projectNode = new ProjectNode(_R, name, dir);
+                AddToLevelMap(projectNode);
+
                 last = SetGraphRelations(_R, last, projectNode);
                 AddDescendantProjectNodes(projectNode, schemaNode, dir);
             }
@@ -52,6 +72,8 @@ namespace WindowsFormsApp1
                 if (!IsPartOfSchema(dir, _Sch))
                 {
                     ProjectNode projectNode = new ProjectNode(_R, dir.Name, ProjectNodeType.Unexpected);
+                    AddToLevelMap(projectNode);
+
                     last = SetGraphRelations(_R, last, projectNode);
                     AddDescendantProjectNodes(projectNode, null, dir);
 
@@ -61,6 +83,8 @@ namespace WindowsFormsApp1
             foreach (var file in _Dir.GetFiles())
             {
                 ProjectNode projectNode = new ProjectNode(_R, file.Name,ProjectNodeType.File);
+                AddToLevelMap(projectNode);
+
                 last = SetGraphRelations(_R, last, projectNode);
             }
         }
@@ -78,6 +102,8 @@ namespace WindowsFormsApp1
                     string name = schemaNode.Attributes["name"].Value;
                     DirectoryInfo dir = new DirectoryInfo(parentDirectory.FullName + Path.DirectorySeparatorChar + name);
                     ProjectNode projectNode = new ProjectNode(parent, name, dir);
+                    AddToLevelMap(projectNode);
+
                     last = SetGraphRelations(parent, last, projectNode);
                     AddDescendantProjectNodes(projectNode, schemaNode, dir);
                 }
@@ -90,6 +116,8 @@ namespace WindowsFormsApp1
                     if (!IsPartOfSchema(dir, parentSchemaNode))
                     {
                         ProjectNode projectNode = new ProjectNode(parent, dir.Name, ProjectNodeType.Unexpected);
+                        AddToLevelMap(projectNode);
+
                         last = SetGraphRelations(parent, last, projectNode);
                         AddDescendantProjectNodes(projectNode, null, dir);
                     }
@@ -98,6 +126,8 @@ namespace WindowsFormsApp1
                 foreach (var file in parentDirectory.GetFiles())
                 {
                     ProjectNode projectNode = new ProjectNode(parent, file.Name, ProjectNodeType.File);
+                    AddToLevelMap(projectNode);
+
                     last = SetGraphRelations(parent, last, projectNode);
 
                 }

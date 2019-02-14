@@ -25,23 +25,29 @@ namespace WindowsFormsApp1
             {
                 pathTextBox1.Text = openFolderDialogBrowser.SelectedPath;
                 ProjectNodeGraphCalculator pngc = new ProjectNodeGraphCalculator(openFolderDialogBrowser.SelectedPath);
-                pngc.generateProjectNodeGraph();
-
-                treeView.Nodes.Clear();
-
+                TreeViewGenerator tvg = new TreeViewGenerator(pngc);
+                tvg.generateTreeView(treeView);
             }
         }
 
-        private TreeNode getTreeViewNode(ProjectNode node)
-        {
-            TreeNode treeNode = node.getTreeNode();
-    
-            if (node.NextDescendant != null)
-                treeNode.Nodes.Add(getTreeViewNode(node.NextDescendant));
-            if (node.NextSibling != null)
-                treeNode.Nodes.Insert(0, getTreeViewNode(node.NextSibling));
 
-            return treeNode;
+        //Mock of Setting a Tag in the Context Menu Strip
+        //This will where inject the ProjectNode to delgate commands to
+        private void contextMenuStripDirectory_Opening(object sender, CancelEventArgs e)
+        {
+            contextMenuStripDirectory.Tag = "Brooks Text";
         }
+
+        private void toolStripMenuItemOpen_Click(object sender, EventArgs e)
+        {
+            ContextMenuStrip tagged = (sender as ToolStripMenuItem).Owner as ContextMenuStrip;
+            Console.WriteLine(tagged.Tag.ToString());
+        }
+
+        private void toolStripMenuItemRename_Click(object sender, EventArgs e)
+        {
+
+        }
+
     }
 }
