@@ -21,15 +21,27 @@ namespace WindowsFormsApp1
 
         private void openButton_Click(object sender, EventArgs e)
         {
-            if (openFolderDialogBrowser.ShowDialog() == DialogResult.OK)
+            if(openFolderDialogBrowser.ShowDialog() == DialogResult.OK)
             {
                 pathTextBox1.Text = openFolderDialogBrowser.SelectedPath;
                 ProjectNodeGraphCalculator pngc = new ProjectNodeGraphCalculator(openFolderDialogBrowser.SelectedPath);
-                ProjectNode root = pngc.generateProjectNodeGraph();
+                pngc.generateProjectNodeGraph();
 
-                Console.WriteLine(root.Name);
+                treeView.Nodes.Clear();
 
             }
+        }
+
+        private TreeNode getTreeViewNode(ProjectNode node)
+        {
+            TreeNode treeNode = node.getTreeNode();
+    
+            if (node.NextDescendant != null)
+                treeNode.Nodes.Add(getTreeViewNode(node.NextDescendant));
+            if (node.NextSibling != null)
+                treeNode.Nodes.Insert(0, getTreeViewNode(node.NextSibling));
+
+            return treeNode;
         }
     }
 }

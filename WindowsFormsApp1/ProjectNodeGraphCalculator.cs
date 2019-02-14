@@ -12,13 +12,16 @@ namespace WindowsFormsApp1
     {
         private static string CONFIG_FILE_PATH = "../../config/ProjectDirectorySchema.xml";
 
-        private readonly XmlDocument SchemaDocument;
-        private readonly DirectoryInfo BaseProjectDirectory;
+        private readonly XmlDocument _SchemaDocument;
+        private readonly DirectoryInfo _Dir;
+
+        private ProjectNode _R;
+        private XmlElement _Sch;
 
         public ProjectNodeGraphCalculator(string baseDirectoryPath)
         {
-            SchemaDocument = LoadSchemaDocument(CONFIG_FILE_PATH);
-            BaseProjectDirectory = new DirectoryInfo(baseDirectoryPath);
+            _SchemaDocument = LoadSchemaDocument(CONFIG_FILE_PATH);
+            _Dir = new DirectoryInfo(baseDirectoryPath);
         }
 
         private XmlDocument LoadSchemaDocument(string configFilePath)
@@ -28,87 +31,74 @@ namespace WindowsFormsApp1
             return schemaConfig;
         }
 
-        public ProjectNode generateProjectNodeGraph()
+        public void generateProjectNodeGraph()
         {
+            _R = new ProjectNode(null, _Dir.FullName, ProjectNodeType.Exists);         
+            _Sch = _SchemaDocument.DocumentElement;
 
-            ProjectNode rootProjectNode = new ProjectNode(null, BaseProjectDirectory.FullName);         
-            rootProjectNode.SetType(BaseProjectDirectory);
+            ProjectNode last = null;   
 
-            XmlElement rootSchemaElement = SchemaDocument.DocumentElement;
-
-            ProjectNode lastSibling = null;
-
-            foreach (XmlNode schemaNode in rootSchemaElement.ChildNodes)
+            foreach (XmlNode schemaNode in _Sch.ChildNodes)
             {
-                ProjectNode projectNode = new ProjectNode(rootProjectNode, schemaNode.Attributes["name"].Value);
-                DirectoryInfo dir = new DirectoryInfo(BaseProjectDirectory.FullName + Path.DirectorySeparatorChar + projectNode.Name);
-                projectNode.SetType(dir);
-
-                lastSibling = SetGraphRelations(rootProjectNode, lastSibling, projectNode);
+                string name = schemaNode.Attributes["name"].Value;
+                DirectoryInfo dir = new DirectoryInfo(_R.Name + Path.DirectorySeparatorChar + name);
+                ProjectNode projectNode = new ProjectNode(_R, name, dir);
+                last = SetGraphRelations(_R, last, projectNode);
                 AddDescendantProjectNodes(projectNode, schemaNode, dir);
             }
 
-            foreach (var directory in BaseProjectDirectory.GetDirectories())
+            foreach (var dir in _Dir.GetDirectories())
             {
-                if (!IsPartOfSchema(directory, rootSchemaElement))
+                if (!IsPartOfSchema(dir, _Sch))
                 {
-                    ProjectNode projectNode = new ProjectNode(rootProjectNode, directory.Name);
-                    projectNode.SetType(ProjectNodeType.Unexpected);
-                    AddDescendantProjectNodes(projectNode, null, directory);
+                    ProjectNode projectNode = new ProjectNode(_R, dir.Name, ProjectNodeType.Unexpected);
+                    last = SetGraphRelations(_R, last, projectNode);
+                    AddDescendantProjectNodes(projectNode, null, dir);
 
-                    lastSibling = SetGraphRelations(rootProjectNode, lastSibling, projectNode);
                 }
             }
 
-            foreach (var file in BaseProjectDirectory.GetFiles())
+            foreach (var file in _Dir.GetFiles())
             {
-                ProjectNode projectNode = new ProjectNode(rootProjectNode, file.Name);
-                projectNode.SetType(ProjectNodeType.File);
-
-                lastSibling = lastSibling = SetGraphRelations(rootProjectNode, lastSibling, projectNode);
-
+                ProjectNode projectNode = new ProjectNode(_R, file.Name,ProjectNodeType.File);
+                last = SetGraphRelations(_R, last, projectNode);
             }
-
-            return rootProjectNode;
         }
+
 
         private void AddDescendantProjectNodes(ProjectNode parent, XmlNode parentSchemaNode, DirectoryInfo parentDirectory)
         {
-            ProjectNode lastSibling = null;
+            ProjectNode last = null;
 
             if (parentSchemaNode != null)
             {
+                ///assert(parent.Type == ProjectNodeType.Unexpected);
                 foreach (XmlNode schemaNode in parentSchemaNode.ChildNodes)
                 {
-                    ProjectNode projectNode = new ProjectNode(parent, schemaNode.Attributes["name"].Value);
-                    DirectoryInfo dir = new DirectoryInfo(parentDirectory.FullName + Path.DirectorySeparatorChar + projectNode.Name);
-                    projectNode.SetType(dir);
-
-                    lastSibling = SetGraphRelations(parent, lastSibling, projectNode);
+                    string name = schemaNode.Attributes["name"].Value;
+                    DirectoryInfo dir = new DirectoryInfo(parentDirectory.FullName + Path.DirectorySeparatorChar + name);
+                    ProjectNode projectNode = new ProjectNode(parent, name, dir);
+                    last = SetGraphRelations(parent, last, projectNode);
                     AddDescendantProjectNodes(projectNode, schemaNode, dir);
                 }
             }
 
             if (parentDirectory.Exists)
             {
-                foreach (var directory in parentDirectory.GetDirectories())
+                foreach (var dir in parentDirectory.GetDirectories())
                 {
-                    if (!IsPartOfSchema(directory, parentSchemaNode))
+                    if (!IsPartOfSchema(dir, parentSchemaNode))
                     {
-                        ProjectNode projectNode = new ProjectNode(parent, directory.Name);
-                        projectNode.SetType(ProjectNodeType.Unexpected);
-                        AddDescendantProjectNodes(projectNode, null, directory);
-
-                        lastSibling = SetGraphRelations(parent, lastSibling, projectNode);
+                        ProjectNode projectNode = new ProjectNode(parent, dir.Name, ProjectNodeType.Unexpected);
+                        last = SetGraphRelations(parent, last, projectNode);
+                        AddDescendantProjectNodes(projectNode, null, dir);
                     }
                 }
 
                 foreach (var file in parentDirectory.GetFiles())
                 {
-                    ProjectNode projectNode = new ProjectNode(parent, file.Name);
-                    projectNode.SetType(ProjectNodeType.File);
-
-                    lastSibling = lastSibling = SetGraphRelations(parent, lastSibling, projectNode);
+                    ProjectNode projectNode = new ProjectNode(parent, file.Name, ProjectNodeType.File);
+                    last = SetGraphRelations(parent, last, projectNode);
 
                 }
             }
@@ -116,11 +106,13 @@ namespace WindowsFormsApp1
 
         private static ProjectNode SetGraphRelations(ProjectNode parent, ProjectNode lastSibling, ProjectNode projectNode)
         {
+            //We can actually get parent from project node
             if (parent.NextDescendant == null)
                 parent.NextDescendant = projectNode;
 
             if (lastSibling != null)
                 lastSibling.NextSibling = projectNode;
+
             return projectNode;
         }
 

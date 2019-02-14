@@ -54,7 +54,7 @@
             this.toolStripMenuItemDelete = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemCreate = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemRename = new System.Windows.Forms.ToolStripMenuItem();
-            this.mockTreeView1 = new System.Windows.Forms.TreeView();
+            this.treeView = new System.Windows.Forms.TreeView();
             this.openButton = new System.Windows.Forms.Button();
             this.pathTextBox1 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -115,8 +115,8 @@
             // 
             // mockTreeView1
             // 
-            this.mockTreeView1.Location = new System.Drawing.Point(-1, 88);
-            this.mockTreeView1.Name = "mockTreeView1";
+            this.treeView.Location = new System.Drawing.Point(-1, 88);
+            this.treeView.Name = "mockTreeView1";
             treeNode1.ContextMenuStrip = this.contextMenuStripFile;
             treeNode1.Name = "Node8";
             treeNode1.Text = "ContractDraft.pdf";
@@ -143,13 +143,13 @@
             treeNode11.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(34)))), ((int)(((byte)(34)))));
             treeNode11.Name = "Dick Pics";
             treeNode11.Text = "Dick Pics";
-            this.mockTreeView1.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
+            this.treeView.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode6,
             treeNode9,
             treeNode10,
             treeNode11});
-            this.mockTreeView1.Size = new System.Drawing.Size(1163, 787);
-            this.mockTreeView1.TabIndex = 0;
+            this.treeView.Size = new System.Drawing.Size(1163, 787);
+            this.treeView.TabIndex = 0;
             // 
             // openButton
             // 
@@ -186,7 +186,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.pathTextBox1);
             this.Controls.Add(this.openButton);
-            this.Controls.Add(this.mockTreeView1);
+            this.Controls.Add(this.treeView);
             this.Name = "Form1";
             this.Text = "Project Structure Navigator";
             this.contextMenuStripFile.ResumeLayout(false);
@@ -197,7 +197,7 @@
         }
 
         #endregion
-        private System.Windows.Forms.TreeView mockTreeView1;
+        private System.Windows.Forms.TreeView treeView;
         private System.Windows.Forms.Button openButton;
         private System.Windows.Forms.ContextMenuStrip contextMenuStripDirectory;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemOpen;
