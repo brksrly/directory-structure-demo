@@ -73,7 +73,7 @@ namespace WindowsFormsApp1
 
         private void SetTreeNodeSyling(TreeNode treeNode, ProjectNode projectNode)
         {
-            // Todo: There *must* be an more obvious/clear way to describe coloe
+            // Todo: There *must* be an more obvious/clear way to describe color
             switch (projectNode.Type)
             {
                 case ProjectNodeType.Allowed:
@@ -89,18 +89,21 @@ namespace WindowsFormsApp1
 
         private ToolStripItem[] CreateToolStripItems(ProjectNode projectNode)
         {
-            //Todo: Filter allowable actions by ProjectNode
-            //Todo: Event Handlers
-            ToolStripMenuItem toolStripMenuItemOpen = new ToolStripMenuItem("Open");
-            ToolStripMenuItem toolStripMenuItemDelete = new ToolStripMenuItem("Delete");
-            ToolStripMenuItem toolStripMenuItemCreate = new ToolStripMenuItem("Create");
-            ToolStripMenuItem toolStripMenuItemRename = new ToolStripMenuItem("Rename");
-            return new ToolStripItem[] 
-            {   toolStripMenuItemOpen,
-                toolStripMenuItemDelete,
-                toolStripMenuItemCreate,
-                toolStripMenuItemRename
-            };
+            List<ToolStripItem> returnList = new List<ToolStripItem>();
+            foreach (ProjectNodeAction action in projectNode.getAllowedActions())
+                returnList.Add(new ToolStripMenuItem(action.ToString(),
+                                                     null,
+                                                     toolStripMenuItem_Click));
+            return returnList.ToArray();
         }
+
+        private void toolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // 🤢....🤮
+            ProjectNodeAction action = (ProjectNodeAction) Enum.Parse(typeof(ProjectNodeAction), (sender as ToolStripMenuItem).Text);
+            ProjectNode projectNode = (ProjectNode) ((sender as ToolStripMenuItem).Owner as ContextMenuStrip).Tag;
+            projectNode.DoAction(action);
+        }
+
     }
 }
