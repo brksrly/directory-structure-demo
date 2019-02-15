@@ -16,4 +16,6 @@
     <dir name="Testing"/>
     <dir name="RFI"/>
   </dir>
+  <dir name="Example Directory">
+  </dir>  
 </root>

@@ -54,7 +54,7 @@ namespace WindowsFormsApp1
 
             _Sch = _SchemaDocument.DocumentElement;
 
-            ProjectNode last = null;   
+            ProjectNode last = null;
 
             foreach (XmlNode schemaNode in _Sch.ChildNodes)
             {
