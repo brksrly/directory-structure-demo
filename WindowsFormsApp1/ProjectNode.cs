@@ -16,6 +16,14 @@ namespace WindowsFormsApp1
         File
     }
 
+    public enum ProjectNodeAction
+    {
+        Open,
+        Create,
+        Delete,
+        Rename
+    }
+
     public class ProjectNode
     {
         public ProjectNode NextSibling { get; set; }
@@ -66,18 +74,58 @@ namespace WindowsFormsApp1
                 sibling = sibling.NextSibling;
             }
             return result;
-
         }
 
-        // Hooks to write the actual functionality
-        public void Open() { throw new NotImplementedException();}
-        public void Delete() { throw new NotImplementedException(); }
-        public void Create() { throw new NotImplementedException(); }
-        public void Rename() { throw new NotImplementedException(); }
-
-        internal void SetType(ProjectNodeType type)
+        public List<ProjectNodeAction> getAllowedActions()
         {
-            Type = type;
+            switch (Type)
+            {
+                case ProjectNodeType.Exists:
+                    return new List<ProjectNodeAction> { ProjectNodeAction.Open, ProjectNodeAction.Delete };
+                case ProjectNodeType.Allowed:
+                    return new List<ProjectNodeAction> { ProjectNodeAction.Create };
+                case ProjectNodeType.Unexpected:
+                    return new List<ProjectNodeAction> { ProjectNodeAction.Open, ProjectNodeAction.Delete, ProjectNodeAction.Rename };
+                case ProjectNodeType.File:
+                    return new List<ProjectNodeAction> { ProjectNodeAction.Open, ProjectNodeAction.Rename };
+                default:
+                    return new List<ProjectNodeAction>();
+            }
         }
+
+   
+        public void DoAction(ProjectNodeAction action)
+        {
+            if (getAllowedActions().Contains(action))
+            {
+                switch (action)
+                {
+                    case ProjectNodeAction.Open:
+                        Open();
+                        break;
+                    case ProjectNodeAction.Delete:
+                        Delete();
+                        break;
+                    case ProjectNodeAction.Create:
+                        Create();
+                        break;
+                    case ProjectNodeAction.Rename:
+                        Rename();
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+                throw new InvalidOperationException(action + " Is not allowed for type " + Type);
+        }
+
+
+        private void Open() { throw new NotImplementedException();}
+        private void Delete() { throw new NotImplementedException(); }
+        private void Create() { throw new NotImplementedException(); }
+        private void Rename() { throw new NotImplementedException(); }
+
+
     }
 }
